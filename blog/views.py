@@ -1,5 +1,9 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 
 
 def posts_list(request):
-    return HttpResponse('<h1>Hello World</h1>')
+    name_lst = ['John', 'Nick', 'Mary', 'Margaret']
+    context = {
+        'names': name_lst
+    }
+    return render(request, 'blog/index.html', context)
