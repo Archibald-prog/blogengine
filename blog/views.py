@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from .models import Post, Tag
 from .forms import TagForm, PostForm
-from .utils import ObjectDetailMixin, ObjectCreateMixin
+from .utils import ObjectDetailMixin, ObjectCreateMixin, ObjectUpdateMixin
 
 
 # class PostsList(ObjectListMixin, View):
@@ -28,9 +28,21 @@ class PostCreate(ObjectCreateMixin, View):
     template = 'blog/post_create_form.html'
 
 
+class PostUpdate(ObjectUpdateMixin, View):
+    model = Post
+    model_form = PostForm
+    template = 'blog/post_update_form.html'
+
+
 class TagCreate(ObjectCreateMixin, View):
     form_model = TagForm
     template = 'blog/tag_create.html'
+
+
+class TagUpdate(ObjectUpdateMixin, View):
+    model = Tag
+    model_form = TagForm
+    template = 'blog/tag_update_form.html'
 
 
 # class TagsList(ObjectListMixin, View):
