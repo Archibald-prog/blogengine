@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from uuid import uuid4
 from pytils.translit import slugify
 
@@ -74,7 +75,25 @@ class ObjectUpdateMixin:
             return redirect(new_obj)
         return render(request, self.template, context)
 
-# class ObjectListMixin:
+
+class ObjectDeleteMixin:
+    model = None
+    template = None
+    redirect_url = None
+
+    def get(self, request, slug):
+        obj = self.model.objects.get(slug__iexact=slug)
+        context = {
+            self.model.__name__.lower(): obj
+        }
+        return render(request, self.template, context)
+
+    def post(self, request, slug):
+        obj = self.model.objects.get(slug__iexact=slug)
+        obj.delete()
+        return redirect(reverse(self.redirect_url))
+
+    # class ObjectListMixin:
 #     model = None
 #     template = None
 #
