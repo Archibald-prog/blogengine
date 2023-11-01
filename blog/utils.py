@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.core.paginator import Paginator
+from django.db.models import Q
+
 from uuid import uuid4
 from pytils.translit import slugify
 
@@ -97,13 +100,45 @@ class ObjectDeleteMixin:
         obj.delete()
         return redirect(reverse(self.redirect_url))
 
-    # class ObjectListMixin:
-#     model = None
-#     template = None
-#
-#     def get(self, request):
-#         obj_list = self.model.objects.all()
-#         context = {
-#             self.model.__name__.lower() + 's': obj_list
-#         }
-#         return render(request, self.template, context)
+
+class ObjectListMixin:
+    model = None
+    template = None
+    paginate_by = None
+
+    def get(self, request):
+        search_query = request.GET.get('search', '')
+
+        if search_query:
+            obj_list = self.model.objects.filter(Q(title__icontains=search_query) |
+                                                 Q(body__icontains=search_query))
+        else:
+            obj_list = self.model.objects.all()
+
+        if self.paginate_by is not None:
+            paginator = Paginator(obj_list, self.paginate_by)
+            page_number = request.GET.get('page', 1)
+            page = paginator.get_page(page_number)
+            is_paginated = page.has_other_pages()
+
+            if page.has_previous():
+                previous_page_url = '?page={}'.format(page.previous_page_number())
+            else:
+                previous_page_url = ''
+
+            if page.has_next():
+                next_page_url = '?page={}'.format(page.next_page_number())
+            else:
+                next_page_url = ''
+
+            context = {
+                'page_object': page,
+                'is_paginated': is_paginated,
+                'previous_url': previous_page_url,
+                'next_url': next_page_url
+            }
+        else:
+            context = {
+                self.model.__name__.lower() + 's': obj_list
+            }
+        return render(request, self.template, context)
