@@ -1,22 +1,14 @@
-from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Post, Tag
 from .forms import TagForm, PostForm
-from .utils import ObjectDetailMixin, ObjectCreateMixin, ObjectUpdateMixin, ObjectDeleteMixin
+from .utils import ObjectDetailMixin, ObjectCreateMixin, ObjectUpdateMixin, ObjectDeleteMixin, ObjectListMixin
 
 
-# class PostsList(ObjectListMixin, View):
-#     model = Post
-#     template = 'blog/index.html'
-
-
-def posts_list(request):
-    posts = Post.objects.all()
-    context = {
-        'posts': posts
-    }
-    return render(request, 'blog/index.html', context)
+class PostsList(ObjectListMixin, View):
+    model = Post
+    template = 'blog/index.html'
+    paginate_by = 2
 
 
 class PostDetail(ObjectDetailMixin, View):
@@ -64,17 +56,9 @@ class TagDelete(LoginRequiredMixin, ObjectDeleteMixin, View):
     raise_exception = True
 
 
-# class TagsList(ObjectListMixin, View):
-#     model = Tag
-#     template = 'blog/tags_list.html'
-
-
-def tags_list(request):
-    tags = Tag.objects.all()
-    context = {
-        'tags': tags
-    }
-    return render(request, 'blog/tags_list.html', context)
+class TagsList(ObjectListMixin, View):
+    model = Tag
+    template = 'blog/tags_list.html'
 
 
 class TagDetail(ObjectDetailMixin, View):
