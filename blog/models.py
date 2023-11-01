@@ -28,10 +28,13 @@ class Post(models.Model):
     def __str__(self):
         return '{}'.format(self.title)
 
+    class Meta:
+        ordering = ['-date_pub']
+
 
 class Tag(models.Model):
     title = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50, blank=True, unique=True)
 
     def get_absolute_url(self):
         return reverse('tag_detail_url', kwargs={'slug': self.slug})
@@ -42,5 +45,13 @@ class Tag(models.Model):
     def get_delete_url(self):
         return reverse('tag_delete_url', kwargs={'slug': self.slug})
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = gen_slug(self, self.title)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return '{}'.format(self.title)
+
+    class Meta:
+        ordering = ['title']
